@@ -21,6 +21,12 @@ public class ExplorerMain{
 		};
 		
 		defFrame.addWindowListener(closer);
+
+		FractalLogics.FractalLogic mandelbrotLogic = new FractalLogics.MandelbrotFractal(WIDTH_PIX, HEIGHT_PIX, WIDTH_PIX/2, HEIGHT_PIX/2);
+		FractalCanvas defCanvas = new FractalCanvas(WIDTH_PIX, HEIGHT_PIX, mandelbrotLogic);
+		defFrame.add(defCanvas);
+		defCanvas.setVisible(true);
+		defFrame.setVisible(true);
 	}
 }
 
@@ -32,17 +38,18 @@ class FractalCanvas extends Canvas{
 	private BufferedImage fractalImage;
 	private int width_;
 	private int height_;
-	
+	private FractalLogics.FractalLogic fractalLogic_;
 	/*
 	 * The constructor will initalize the fractal image and setup the canvas dimensions.
 	 * @param width - the width of the fractal image and the canvas itself.
 	 * @param height - the height of the fractal image and the canvas itself.
 	 */
-	FractalCanvas(int width, int height){
+	FractalCanvas(int width, int height, FractalLogics.FractalLogic fractalLogic){
 		super();
-		fractalImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		width_ = width;
 		height_ = height;
+		fractalLogic_ = fractalLogic;
+		fractalImage = fractalLogic_.generateImage();
 	}
 	
 	/*

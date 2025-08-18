@@ -1,6 +1,6 @@
-import java.awt.image.*;
 import java.awt.Color;
-
+import java.awt.event.*;
+import java.awt.image.*;
 /*
  * This class acts a container for adding all sorts of fractals.
  * Includes the FractalLogic interface too for now, giving it its own file seemed overkill
@@ -14,6 +14,10 @@ public class FractalLogics{
  	*/
 	public interface FractalLogic{
 		/*
+		* This function is just used to get a reference to the rendering canvas, so we can repaint it when mouse is clicked.
+		*/
+		public void setCanvas(FractalCanvas canvasRef);
+		/*
 		* This function should generate a final buffered image of the fractal
 		* @param width - the width of the image
 		* @param height - the height of the image
@@ -25,17 +29,27 @@ public class FractalLogics{
 	/*
 	 * This class contains the logic to render the Mandelbrot Set Fractal
 	 */
-	public static class MandelbrotFractal implements FractalLogic{
+	public static class MandelbrotFractal implements FractalLogic, MouseListener{
+		/* TODO: Isues currently in this class:
+		* TODO: i have changed originX and originY from integer which made sense intuitively as they represent pixels
+		* TODO: to doubles, which allow for further depth until the fractal fragemnts, but I don't fully understand yet why using 
+		* TODO: origin as integer compeletly blanks the screen as a relatively lower depth, I suspect its because of the mapping operations during zooming
+		* TODO: which also in turn could be improved. My current solution works great and reaches the maximum depth possible that double can handle, and the
+		* TODO: only bug is that the axes have some error in thicknesses. 
+		*/ 
 		private int width_;
 		private int height_;
-		private double resolution_ = 100;
-		private int originX_;
-		private int originY_;
-		private int MAX_ITERATIONS = 100;
-		private double MAX_MAG_SQUARED = 4;
+		private double resolution_ = 150;
+		private double originX_;
+		private double originY_;
+		private int MAX_ITERATIONS = 300;
+		private double MAX_MAG_SQUARED = 8;
+		private FractalCanvas canvasRef_;
+		private double zoomMultiplier = 1.25;
 		final private Color baseGradColor = new Color(0, 0, 0);
-		final private Color bgColor = new Color(2, 8, 104);
+		final private Color bgColor = new Color(10, 10, 200);
 		final private Color axesColor = new Color(255, 180, 200);
+		
 		// TODO: overload this later to allow for custom initial resolutions 
 		MandelbrotFractal(int width, int height, int originX, int originY){
 			width_ = width;
@@ -44,6 +58,36 @@ public class FractalLogics{
 			originY_ = originY;
 		}
 		
+		/*
+		 * This function is just used to get a reference to the rendering canvas, so we can repaint it when mouse is clicked.
+		 */
+		public void setCanvas(FractalCanvas canvasRef){
+			this.canvasRef_ = canvasRef;
+		}
+
+		/*
+		 * This function calculates the new values of origin, and updates the resolution on a mouse press event.
+		 */
+		@Override
+		public void mousePressed(MouseEvent event){
+			int newXCenter = event.getX();
+			int newYCenter = event.getY();
+			double centerReal = (newXCenter - originX_)/resolution_;
+			double centerImag = (originY_ - newYCenter)/resolution_;
+			// TODO: fix this naive approach to a more accurate one, his causes artifacts to generate occassionally
+			switch(event.getButton()){
+				case MouseEvent.BUTTON1:
+					resolution_ = resolution_* zoomMultiplier;
+					break;
+				case MouseEvent.BUTTON3:
+					resolution_ = resolution_ / zoomMultiplier;
+					break;
+			}
+			originX_ = width_/2  - centerReal * resolution_;
+			originY_ = height_/2 + centerImag * resolution_;
+			canvasRef_.regenerateFractal();
+		}
+
 		/*
 		 * This function simply returns true if the point belongs to the Mandelbrot set and false otherwise.
 		 * It checks until the MAX_ITERATIONS if the square of the magnitude goes above a certain value.
@@ -55,7 +99,7 @@ public class FractalLogics{
 			double realCurr = 0;
 			double imagCurr = 0;
 			double magSquared = 0;
-			double tempReal = 0;
+			double tempReal;
 			int currIterations = 0;
 			while(magSquared <= MAX_MAG_SQUARED){
 				if(currIterations >= MAX_ITERATIONS) return true;
@@ -77,8 +121,9 @@ public class FractalLogics{
 			BufferedImage fractalImage = new BufferedImage(width_, height_, BufferedImage.TYPE_INT_RGB);
 			for(int i = 0; i < width_; i++){
 				for(int j = 0; j < height_; j++){
-					double realCoordinate = ((double)(i - originX_))/resolution_;
-					double imagCoordinate = ((double)(originY_ - j))/resolution_;
+					// TODO: using a round to to int, to keep axes, reconsider keeping originX and originY as int.
+					double realCoordinate = (Math.round((i - originX_)))/resolution_;
+					double imagCoordinate = (Math.round((originY_ - j)))/resolution_;
 					if(realCoordinate == 0 || imagCoordinate == 0){
 						fractalImage.setRGB(i, j, axesColor.getRGB());
 					}
@@ -92,6 +137,19 @@ public class FractalLogics{
 			}
 			return fractalImage;
 		}
+
+		/*
+		 * Below are some unused functions that I have to define (as empty in this case), due to implementing from MouseListener.
+		 */
+		@Override
+		public void mouseClicked(MouseEvent event){}
+		@Override
+		public void mouseEntered(MouseEvent event){}
+		@Override
+		public void mouseReleased(MouseEvent event){}
+		@Override
+		public void mouseExited(MouseEvent event){}
+
 	}
 
 }

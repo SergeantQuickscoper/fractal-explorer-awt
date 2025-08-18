@@ -1,4 +1,3 @@
-import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
@@ -6,7 +5,10 @@ import java.awt.image.*;
 public class ExplorerMain{
 	private final static int WIDTH_PIX = 800;
 	private final static int HEIGHT_PIX = 800;
-
+	/*
+	 * The main driver function/
+	 * This will set up the frame, exitMode, default canvas, and some initial fractal logic.
+	 */
 	public static void main(String[] args){
 		Frame defFrame = new Frame("Fractal Explorer");	
 		defFrame.setSize(WIDTH_PIX, HEIGHT_PIX);
@@ -24,9 +26,12 @@ public class ExplorerMain{
 
 		FractalLogics.FractalLogic mandelbrotLogic = new FractalLogics.MandelbrotFractal(WIDTH_PIX, HEIGHT_PIX, WIDTH_PIX/2, HEIGHT_PIX/2);
 		FractalCanvas defCanvas = new FractalCanvas(WIDTH_PIX, HEIGHT_PIX, mandelbrotLogic);
+		mandelbrotLogic.setCanvas(defCanvas);
 		defFrame.add(defCanvas);
 		defCanvas.setVisible(true);
 		defFrame.setVisible(true);
+		defCanvas.addMouseListener((MouseListener)mandelbrotLogic);
+		defCanvas.regenerateFractal();
 	}
 }
 
@@ -35,7 +40,7 @@ public class ExplorerMain{
  */
 class FractalCanvas extends Canvas{
 	final private Color bgColor = new Color(2, 8, 104);
-	private BufferedImage fractalImage;
+	private BufferedImage fractalImage_ = null;
 	private int width_;
 	private int height_;
 	private FractalLogics.FractalLogic fractalLogic_;
@@ -49,7 +54,15 @@ class FractalCanvas extends Canvas{
 		width_ = width;
 		height_ = height;
 		fractalLogic_ = fractalLogic;
-		fractalImage = fractalLogic_.generateImage();
+	}
+
+	/*
+	 * This function will call the generate Image function from the fractal logic, set it as the instance's fractalImage_ and then repaint the component.
+	 */
+	public void regenerateFractal(){
+        BufferedImage newImg = fractalLogic_.generateImage();
+        fractalImage_ = newImg;
+        repaint();
 	}
 	
 	/*
@@ -69,7 +82,9 @@ class FractalCanvas extends Canvas{
 	 */
 	@Override
 	public void paint(Graphics drawer){
-		drawer.drawImage(fractalImage, 0, 0, null);
+		if(fractalImage_ != null){
+			drawer.drawImage(fractalImage_, 0, 0, null);
+		}
 	}
 
 }

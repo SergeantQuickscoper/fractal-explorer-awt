@@ -3,7 +3,7 @@ import java.awt.event.*;
 import java.awt.image.*;
 
 public class ExplorerMain{
-	private final static int WIDTH_PIX = 800;
+	private final static int WIDTH_PIX = 1500;
 	private final static int HEIGHT_PIX = 800;
 	/*
 	 * The main driver function/
@@ -39,7 +39,6 @@ public class ExplorerMain{
  * This class is a component that will render a buffered image, intended to be used to render some fractal image.
  */
 class FractalCanvas extends Canvas{
-	final private Color bgColor = new Color(2, 8, 104);
 	private BufferedImage fractalImage_ = null;
 	private int width_;
 	private int height_;

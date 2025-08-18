@@ -42,12 +42,15 @@ public class FractalLogics{
 		private double resolution_ = 150;
 		private double originX_;
 		private double originY_;
+		private float redScaling = 7.5f;
+		private float greenScaling = 15;
+		private float blueScaling = 9;
 		private int MAX_ITERATIONS = 300;
 		private double MAX_MAG_SQUARED = 8;
 		private FractalCanvas canvasRef_;
 		private double zoomMultiplier = 1.25;
+		private boolean showAxes_ = false;
 		final private Color baseGradColor = new Color(0, 0, 0);
-		final private Color bgColor = new Color(10, 10, 200);
 		final private Color axesColor = new Color(255, 180, 200);
 		
 		// TODO: overload this later to allow for custom initial resolutions 
@@ -89,20 +92,20 @@ public class FractalLogics{
 		}
 
 		/*
-		 * This function simply returns true if the point belongs to the Mandelbrot set and false otherwise.
+		 * This function returns the number of iterations we passed for a given complex number.
 		 * It checks until the MAX_ITERATIONS if the square of the magnitude goes above a certain value.
 		 * @params real - real component of the number (x axis)
 		 * @params imag - imaginary component of the number (y axis)
-		 * @returns - true if in mandelbrot otherwise false
+		 * @returns - number of iterations to reach max
 		 */
-		private boolean isMandelbrot(double real, double imag){
+		private int getMandelbrotGrad(double real, double imag){
 			double realCurr = 0;
 			double imagCurr = 0;
 			double magSquared = 0;
 			double tempReal;
 			int currIterations = 0;
 			while(magSquared <= MAX_MAG_SQUARED){
-				if(currIterations >= MAX_ITERATIONS) return true;
+				if(currIterations >= MAX_ITERATIONS) return MAX_ITERATIONS;
 				tempReal = realCurr * realCurr - imagCurr * imagCurr + real;
 				imagCurr = 2 * realCurr * imagCurr + imag;
 				realCurr = tempReal;
@@ -110,7 +113,7 @@ public class FractalLogics{
 				currIterations++;
 			}
 
-			return false;
+			return currIterations;
 		}
 		
 		/*
@@ -124,14 +127,22 @@ public class FractalLogics{
 					// TODO: using a round to to int, to keep axes, reconsider keeping originX and originY as int.
 					double realCoordinate = (Math.round((i - originX_)))/resolution_;
 					double imagCoordinate = (Math.round((originY_ - j)))/resolution_;
-					if(realCoordinate == 0 || imagCoordinate == 0){
+					int iterationCount = getMandelbrotGrad(realCoordinate, imagCoordinate);
+					if((realCoordinate == 0 || imagCoordinate == 0) && showAxes_){
 						fractalImage.setRGB(i, j, axesColor.getRGB());
 					}
-					else if(isMandelbrot(realCoordinate, imagCoordinate)){
+					else if(iterationCount == MAX_ITERATIONS){
 						fractalImage.setRGB(i, j, baseGradColor.getRGB());
 					}
 					else{
-						fractalImage.setRGB(i, j, bgColor.getRGB());
+						// t - normalized iteration count
+						float t = (float)iterationCount/(float)MAX_ITERATIONS;
+						// a gradient color calculator based on bernstein polynomials and our normalized iteration count
+						float r = (float)(redScaling*(1-t)*t*t*t * 255);  
+						float g = (float)(greenScaling*(1-t)*(1-t)*t*t * 255);
+						float b = (float)(blueScaling*(1-t)*(1-t)*(1-t)*t * 255);
+						Color gradColor = new Color(Math.min(255, Math.max(0, (int)r)), Math.min(255, Math.max(0, (int)g)),Math.min(255, Math.max(0, (int)b)));
+						fractalImage.setRGB(i, j, gradColor.getRGB());
 					}
 				}
 			}

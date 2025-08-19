@@ -23,6 +23,8 @@ For Linux, MacOS, other Unix-based systems with bash:
 ./scripts/compileAndRun.sh
 ```
 
+You can also directly compile `ExplorerMain.java` with javac and run it that way too.
+
 Have fun and feel free to open issues or contribute to the extended goals!
 
 ## Minimum goals before showcase (achieved)

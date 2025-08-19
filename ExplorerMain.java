@@ -6,7 +6,7 @@ public class ExplorerMain{
 	private final static int WIDTH_PIX = 1500;
 	private final static int HEIGHT_PIX = 800;
 	/*
-	 * The main driver function/
+	 * The main driver function.
 	 * This will set up the frame, exitMode, default canvas, and some initial fractal logic.
 	 */
 	public static void main(String[] args){
@@ -21,7 +21,6 @@ public class ExplorerMain{
 				System.exit(0);
 			}
 		};
-		
 		defFrame.addWindowListener(closer);
 
 		FractalLogics.FractalLogic mandelbrotLogic = new FractalLogics.MandelbrotFractal(WIDTH_PIX, HEIGHT_PIX, WIDTH_PIX/2, HEIGHT_PIX/2);

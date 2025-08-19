@@ -6,7 +6,7 @@ This project is also intended as an intro to the AWT, hence the code is quite de
 The project contains two files as of now:
  - `ExplorerMain.java`
     This file has two main functions, setup the frame and canvas within the main function, host the class `FractalCanvas` which is an override of the `Canvas` AWT class. I will get into more detail about `FractalCanvas`. `FractalCanvas` expects some `FractalLogic` instance (which is defined in the next file) which should pass give it a `BufferredImage` object to draw and also call `regenerateFractal` when re-rendering (example: when zooming in and out).
-<br>
+   
  - `FractalLogics.java`
     This file is supposed to be container of all the different fractals that will be a part of the project. The `FractalLogics` class as of now contains the `FractalLogic` interface, which only contains two methods which I think will be required in every `FractalLogic` implementation class in the future, and an implementation of the this interface which of course is the `MandelbrotFractal`. 
 
